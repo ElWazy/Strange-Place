@@ -6,7 +6,8 @@ public class Movement : MonoBehaviour
 {
     public float speed;
     public float rotationSpeed;
-    public float jumpSpeed;
+    public float jumpHeight;
+    public float gravityMultiplier;
     public float jumpButtonGracePeriod;
     public Transform cameraTransform;
 
@@ -16,6 +17,9 @@ public class Movement : MonoBehaviour
     private float originalStepOffset;
     private float? lastGroundedTime;
     private float? jumpButtonPressedTime;
+    private bool isJumping;
+    private bool isGrounded;
+    private bool isRecovering;
 
     void Start()
     {
@@ -39,7 +43,9 @@ public class Movement : MonoBehaviour
 
         animator.SetFloat("Velocity", magnitude);
 
-        ySpeed += Physics.gravity.y * Time.deltaTime;
+        float gravity = Physics.gravity.y * gravityMultiplier;
+        if (isJumping && ySpeed > 0 && !Input.GetButton("Jump")) gravity *= 2;
+        ySpeed += gravity * Time.deltaTime;
 
         if (characterController.isGrounded) lastGroundedTime = Time.time;
 
@@ -48,22 +54,38 @@ public class Movement : MonoBehaviour
         if (Time.time - lastGroundedTime <= jumpButtonGracePeriod) {
             characterController.stepOffset = originalStepOffset;
             ySpeed = -0.5f;
+            animator.SetBool("IsGrounded", true);
+            isGrounded = true;
+            animator.SetBool("IsJumping", false);
+            isJumping = false;
+            animator.SetBool("IsFalling", false);
+
+
             if (Time.time - jumpButtonPressedTime <= jumpButtonGracePeriod) {
-                ySpeed = jumpSpeed;
+                ySpeed = Mathf.Sqrt(jumpHeight * -3 * gravity);
+                animator.SetBool("IsJumping", true);
+                isJumping = true;
                 lastGroundedTime = null;
                 jumpButtonPressedTime = null;
             }
         }
         else {
             characterController.stepOffset = 0f;
+            animator.SetBool("IsGrounded", false);
+            isGrounded = false;
+
+            if ((isJumping && ySpeed < 0) || ySpeed < -2) animator.SetBool("IsFalling", true);
         }
 
         Vector3 velocity = movementDirection * magnitude;
-        velocity.y = ySpeed;
+        velocity = AdjustVelocityToSlope(velocity);
+        velocity.y += ySpeed;
 
-        characterController.Move(velocity * Time.deltaTime);
+        if (!animator.GetBool("IsRecovering")) characterController.Move(velocity * Time.deltaTime);
 
         if (movementDirection != Vector3.zero) {
+            animator.SetBool("IsMoving", true);
+
             Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
 
             transform.rotation = Quaternion.RotateTowards(
@@ -71,9 +93,25 @@ public class Movement : MonoBehaviour
                 toRotation, 
                 rotationSpeed * Time.deltaTime
             );
+        } else {
+            animator.SetBool("IsMoving", false);
         }
     }
 
+    private Vector3 AdjustVelocityToSlope(Vector3 velocity)
+    {
+        Ray ray = new Ray(transform.position, Vector3.down);
+
+        if(Physics.Raycast(ray, out RaycastHit hitInfo, 0.4f)) {
+            Quaternion slopeRotation = Quaternion.FromToRotation(Vector3.up, hitInfo.normal);
+            Vector3 adjustedVelocity = slopeRotation * velocity;
+
+            if (adjustedVelocity.y < 0) return adjustedVelocity;
+        }
+
+        return velocity;
+    }
+    
     private void OnApplicationFocus(bool focus)
     {
         if (focus) {
@@ -82,4 +120,5 @@ public class Movement : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
     }
+
 }
