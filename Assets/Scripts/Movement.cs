@@ -8,8 +8,10 @@ public class Movement : MonoBehaviour
     public float rotationSpeed;
     public float jumpSpeed;
     public float jumpButtonGracePeriod;
+    public Transform cameraTransform;
 
     private CharacterController characterController;
+    private Animator animator;
     private float ySpeed;
     private float originalStepOffset;
     private float? lastGroundedTime;
@@ -18,6 +20,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
         originalStepOffset = characterController.stepOffset;
     }
 
@@ -28,14 +31,19 @@ public class Movement : MonoBehaviour
 
         Vector3 movementDirection = new Vector3(horizontalInput, 0f, verticalInput);
         float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
+        movementDirection = Quaternion.AngleAxis(
+            cameraTransform.rotation.eulerAngles.y,
+            Vector3.up
+        ) * movementDirection;
         movementDirection.Normalize();
+
+        animator.SetFloat("Velocity", magnitude);
 
         ySpeed += Physics.gravity.y * Time.deltaTime;
 
         if (characterController.isGrounded) lastGroundedTime = Time.time;
 
         if (Input.GetButton("Jump")) jumpButtonPressedTime = Time.time;
-
     
         if (Time.time - lastGroundedTime <= jumpButtonGracePeriod) {
             characterController.stepOffset = originalStepOffset;
@@ -63,6 +71,15 @@ public class Movement : MonoBehaviour
                 toRotation, 
                 rotationSpeed * Time.deltaTime
             );
+        }
+    }
+
+    private void OnApplicationFocus(bool focus)
+    {
+        if (focus) {
+            Cursor.lockState = CursorLockMode.Locked;
+        } else {
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 }
