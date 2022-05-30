@@ -83,7 +83,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0fc138af946ecec439113123971e20bd, type: 3}
       propertyPath: m_Name
-      value: PlayerV2
+      value: PlayerV2 Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 2101014461768404501, guid: 0fc138af946ecec439113123971e20bd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7638104345217537351, guid: 0fc138af946ecec439113123971e20bd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fc138af946ecec439113123971e20bd, type: 3}
@@ -148,6 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 7.5
   rotationSpeed: 720
-  jumpSpeed: 5
+  jumpHeight: 0
+  gravityMultiplier: 0
   jumpButtonGracePeriod: 0.2
   cameraTransform: {fileID: 0}
