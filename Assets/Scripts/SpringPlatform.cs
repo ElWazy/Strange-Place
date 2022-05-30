@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpringPlatform : MonoBehaviour
 {
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    void OnCollisionEnter(Collision other)
     {
         Debug.Log("Its Collide");
     }

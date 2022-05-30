@@ -4,19 +4,14 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public GameObject coins;
     void Start()
     {
-       
+       coins.SetActive(false);
     }
-
-    void Update()
-    {
-        
-    }
-
 
     public void SpawnAmulet()
     {
-        Debug.Log("Encaromessi");
+       coins.SetActive(true);
     }
 }

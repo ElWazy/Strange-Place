@@ -18,7 +18,6 @@ public class Movement : MonoBehaviour
     private float? lastGroundedTime;
     private float? jumpButtonPressedTime;
     private bool isJumping;
-    private bool isGrounded;
     private bool isRecovering;
 
     void Start()
@@ -55,7 +54,6 @@ public class Movement : MonoBehaviour
             characterController.stepOffset = originalStepOffset;
             ySpeed = -0.5f;
             animator.SetBool("IsGrounded", true);
-            isGrounded = true;
             animator.SetBool("IsJumping", false);
             isJumping = false;
             animator.SetBool("IsFalling", false);
@@ -72,7 +70,6 @@ public class Movement : MonoBehaviour
         else {
             characterController.stepOffset = 0f;
             animator.SetBool("IsGrounded", false);
-            isGrounded = false;
 
             if ((isJumping && ySpeed < 0) || ySpeed < -2) animator.SetBool("IsFalling", true);
         }
