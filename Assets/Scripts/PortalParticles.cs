@@ -6,17 +6,22 @@ public class PortalParticles : MonoBehaviour
 {
 
     public GameObject particle;
+    private int mushroomsRequired;
+
 
     void Start(){
-
         particle.SetActive(false);
     }
 
 
-    void OnTriggerEnter(Collider collider)
+    public void ActivatePortal(PlayerInventory playerInventory)
     {
-        particle.SetActive(true);
+       mushroomsRequired = playerInventory.mushrooms;
+       if (mushroomsRequired == 6){
+            particle.SetActive(true);
+       }
     }
+
     
 
 
